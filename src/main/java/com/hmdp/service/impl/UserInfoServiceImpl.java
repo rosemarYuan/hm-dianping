@@ -38,15 +38,15 @@ public class  UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> 
 
         // 2. 生成验证码
         String code = RandomUtil.randomNumbers(6);
+        log.debug("邮箱验证码生成成功，验证码：{}", code);
+
 
         // 3. 保存验证码到Session
         session.setAttribute("code", code);
 
         // 4. 异步发送邮件 (主线程直接走下去，不等待邮件发送完成)
-        // 实际开发中，邮箱地址通常根据 phone 从数据库查，这里演示固定发给你的邮箱
         String email = "1973198783@qq.com";
         mailClient.sendMailAsync(email, "【黑马点评】登录验证码", "您的验证码是：" + code + "，有效期2分钟。");
-        log.debug("发送邮箱验证码成功，验证码：{}", code);
 
         // 5. 结束
         return Result.ok("发送验证码成功");
