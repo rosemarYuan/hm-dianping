@@ -1,6 +1,7 @@
 package com.hmdp.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.hmdp.dto.LoginFormDTO;
 import com.hmdp.dto.Result;
 import com.hmdp.entity.UserInfo;
 
@@ -16,5 +17,4 @@ import javax.servlet.http.HttpSession;
  */
 public interface IUserInfoService extends IService<UserInfo> {
 
-    Result sentCode(String phone, HttpSession session);
 }

@@ -37,7 +37,7 @@ public class UserController {
     @PostMapping("code")
     public Result sendCode(@RequestParam("phone") String phone, HttpSession session) {
         log.info("发送短信验证码并保存验证码, phone: {}", phone);
-        return userInfoService.sentCode(phone, session);
+        return userService.sentCode(phone, session);
     }
 
     /**
@@ -46,8 +46,8 @@ public class UserController {
      */
     @PostMapping("/login")
     public Result login(@RequestBody LoginFormDTO loginForm, HttpSession session){
-        // TODO 实现登录功能
-        return Result.fail("功能未完成");
+        log.info("实现登录功能,phone: {}", loginForm.getPhone());
+        return userService.login(loginForm,session);
     }
 
     /**
