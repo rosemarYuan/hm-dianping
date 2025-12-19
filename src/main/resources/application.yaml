@@ -7,11 +7,10 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/hmdp?useSSL=false&serverTimezone=UTC
     username: root
-    password: ???
+    password: "1115"
   redis:
-    host: 192.168.150.101
+    host: localhost
     port: 6379
-    password: ???
     lettuce:
       pool:
         max-active: 10
@@ -20,6 +19,19 @@ spring:
         time-between-eviction-runs: 10s
   jackson:
     default-property-inclusion: non_null # JSON处理时忽略非空字段
+  spring:                            # 新增：发送验证码功能
+    mail:
+      host: smtp.qq.com              # QQ 邮箱 SMTP 服务器地址
+      username: 1341036097@qq.com      # 发件人邮箱 (你的邮箱)
+      password: yixsyxuujbdxidaj     # 【注意】这里填获取到的16位授权码，不是QQ密码！
+      default-encoding: UTF-8
+      properties:
+        mail:
+          smtp:
+            auth: true               # 需要开启认证
+            starttls:
+              enable: true           # 开启加密传输
+              required: true
 mybatis-plus:
   type-aliases-package: com.hmdp.entity # 别名扫描包
 logging:
