@@ -50,8 +50,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         log.debug("邮箱验证码生成成功，验证码：{}", code);
 
 
-        // 3. 保存验证码到Session
-        session.setAttribute("code", code);
+        // 3. TODO 保存验证码到Redis
+
 
         // 4. 异步发送邮件 (主线程直接走下去，不等待邮件发送完成)
         String email = "1973198783@qq.com";
@@ -63,7 +63,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Override
     public Result login(LoginFormDTO loginForm, HttpSession session) {
-        // TODO 登陆时要保存手机号，手机号-验证码均对应 -> code改为手机号+code
+        // TODO 登陆更改Redis
 
         String phone = loginForm.getPhone();
         String code = loginForm.getCode();
@@ -86,9 +86,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             user = createUserWithPhone(phone);
         }
 
+        // TODO 保存用户数据到Redis
+        // 生成随机Token作为令牌
+
+        // User转换为String存储
+
+        // 存
         UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
         session.setAttribute("user", userDTO);
 
+        // 返回token
         return Result.ok();
     }
 
