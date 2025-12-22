@@ -2,16 +2,22 @@ package com.hmdp.config;
 
 import com.hmdp.utils.LoginInterCeptor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import javax.annotation.Resource;
 
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
 
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // 🔴 关键点2：注册你的 LoginInterceptor
-        registry.addInterceptor(new LoginInterCeptor())
+        // 关键点2：注册你的 LoginInterceptor
+        registry.addInterceptor(new LoginInterCeptor(stringRedisTemplate))
                 // 1. 拦截哪些路径？ (/** 代表所有路径)
                 .addPathPatterns("/**")
                 // 2. 放行哪些路径？ (不需要登录也能看的)
