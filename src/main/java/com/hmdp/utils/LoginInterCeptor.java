@@ -6,6 +6,7 @@ import com.hmdp.dto.Result;
 import com.hmdp.dto.UserDTO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -17,45 +18,27 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+
+/**
+ * 二号拦截器，通过线程ThreadLocal判断用户是否存在？不存在时拦截关键操作路径。
+ *  --> 查询ThreadLocal中的用户
+ *  --> 不存在时，拦截
+ *  --> 存在时，放行
+ */
 public class LoginInterCeptor implements HandlerInterceptor{
-
-    // TODO 注入参数。这里大类没有加“@Configutation”，因此不能直接@依赖注入，要自己写进去
-    private StringRedisTemplate stringRedisTemplate;
-
-    public LoginInterCeptor(StringRedisTemplate stringRedisTemplate) {
-        this.stringRedisTemplate = stringRedisTemplate;
-    }
-
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        //  1. 从请求头中token获取Redis中的用户
-        String token = request.getHeader("authorization");
-        if (StrUtil.isBlank(token)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        //  TODO 1. 从线程中取出Redis用户，并判断是否需要拦截
+        if (UserHolder.getUser() == null) {
+            response.setStatus(UNAUTHORIZED.value());
             return false;
         }
-
-        //  2. 查询到的Hash转UserDTO，冰判断用户是否存在并处理
-        Map<Object, Object> userMap = stringRedisTemplate.opsForHash().entries(RedisConstants.LOGIN_USER_KEY + token);
-        if (userMap.isEmpty()) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return false;
-        }
-        UserDTO userDTO = BeanUtil.fillBeanWithMap(userMap, new UserDTO(), false);
-
-        //  3. 刷新token有效期
-        UserHolder.saveUser(userDTO);
-        stringRedisTemplate.expire(RedisConstants.LOGIN_USER_KEY + token, RedisConstants.LOGIN_USER_TTL, TimeUnit.MINUTES);
 
         // 3. 放行
         return true;
     }
 
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        // 移除用户
-        UserHolder.removeUser();
-    }
 
 }

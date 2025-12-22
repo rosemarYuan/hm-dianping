@@ -1,6 +1,7 @@
 package com.hmdp.config;
 
 import com.hmdp.utils.LoginInterCeptor;
+import com.hmdp.utils.RefreshTokenInterCeptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -8,6 +9,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.annotation.Resource;
 
+/**
+ * 添加两个拦截器
+ * 拦截器顺序由注册器Order控制
+ * .order(int i) 方法确定先后顺序。
+ */
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
 
@@ -17,7 +23,7 @@ public class MvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // 关键点2：注册你的 LoginInterceptor
-        registry.addInterceptor(new LoginInterCeptor(stringRedisTemplate))
+        registry.addInterceptor(new LoginInterCeptor())
                 // 1. 拦截哪些路径？ (/** 代表所有路径)
                 .addPathPatterns("/**")
                 // 2. 放行哪些路径？ (不需要登录也能看的)
@@ -29,6 +35,8 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/blog/hot",      // 热门博客
                         "/user/code",     // 发送验证码 (如果不放行，没人能拿到验证码)
                         "/user/login"     // 登录接口 (如果不放行，没人能登录)
-                );
+                )
+                .order(1);
+        registry.addInterceptor(new RefreshTokenInterCeptor(stringRedisTemplate)).order(0);
     }
 }
