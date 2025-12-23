@@ -27,8 +27,10 @@ public class ShopTypeController {
 
     @GetMapping("list")
     public Result queryTypeList() {
+        // 添加查询缓存，使用String还是Zset呢？
+
         List<ShopType> typeList = typeService
                 .query().orderByAsc("sort").list();
-        return Result.ok(typeList);
+        return typeService.quereTypeList();
     }
 }
