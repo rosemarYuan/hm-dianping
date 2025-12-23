@@ -33,6 +33,8 @@ public class ShopController {
      */
     @GetMapping("/{id}")
     public Result queryShopById(@PathVariable("id") Long id) {
+        // TODO 当前时使用MBP搜索数据库，修改为先走缓存再走数据库的结构
+        shopService.queryShopById(id);
         return Result.ok(shopService.getById(id));
     }
 
