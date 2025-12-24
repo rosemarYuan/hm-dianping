@@ -82,4 +82,10 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
         // 3. 返回结果
         return Result.ok();
     }
+
+    private boolean tryLock(String key) {
+
+        // 加锁
+
+    }
 }
