@@ -10,6 +10,7 @@ import com.hmdp.dto.Result;
 import com.hmdp.entity.Shop;
 import com.hmdp.mapper.ShopMapper;
 import com.hmdp.service.IShopService;
+import com.hmdp.utils.CacheClient;
 import com.hmdp.utils.RedisData;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +18,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,6 +40,9 @@ import static java.lang.Thread.sleep;
 public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IShopService {
 
     private final StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private CacheClient cacheClient;
 
     public ShopServiceImpl(StringRedisTemplate stringRedisTemplate) {
         this.stringRedisTemplate = stringRedisTemplate;
@@ -90,7 +95,13 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
     //  2.用互斥锁解决缓存击穿，在上面基础上修改为queryWithMutex
     @Override
     public Result queryShopById(Long id) {
-        return queryWithMutex(id);
+        Shop shop = cacheClient.queryWithPassThrough(
+                CACHE_SHOP_KEY,id, Shop.class,this::getById,CACHE_SHOP_TTL, TimeUnit.MINUTES);
+        if(shop == null) {
+            return Result.fail("不存在店铺");
+        }
+        return Result.ok(shop);
+//        return queryWithMutex(id);
     }
 
     @NotNull
