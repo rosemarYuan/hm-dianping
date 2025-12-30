@@ -32,6 +32,7 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
     @Resource
     private RedisIdWorker redisIdWorker;
 
+
     @Override
     @Transactional
     public Result seckillVoucher(Long voucherId) {
